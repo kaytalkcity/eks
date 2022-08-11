@@ -1,0 +1,787 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-preometheus
+spec:
+  destination:
+    name: ''
+    namespace: monitoring
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: kube-prometheus
+    repoURL: 'https://github.com/kaytalkcity/eks.git'
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+      skipCrds: true
+      values: |
+        alertmanager:
+          additionalPeers: []
+          affinity: {}
+          config:
+            global:
+              resolve_timeout: 5m
+            receivers:
+              - name: 'null'
+            route:
+              group_by:
+                - job
+              group_interval: 5m
+              group_wait: 30s
+              receiver: 'null'
+              repeat_interval: 12h
+              routes:
+                - match:
+                    alertname: Watchdog
+                  receiver: 'null'
+          configMaps: []
+          configNamespaceSelector: {}
+          configSelector: {}
+          configuration: {}
+          containerSecurityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            enabled: true
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+          containers: []
+          enabled: true
+          externalConfig: false
+          externalUrl: ''
+          image:
+            pullSecrets: []
+            registry: docker.io
+            repository: bitnami/alertmanager
+            tag: 0.24.0-debian-11-r22
+          ingress:
+            annotations: {}
+            apiVersion: ''
+            enabled: false
+            extraHosts: []
+            extraPaths: []
+            extraRules: []
+            extraTls: []
+            hostname: alertmanager.local
+            ingressClassName: ''
+            path: /
+            pathType: ImplementationSpecific
+            secrets: []
+            selfSigned: false
+            tls: false
+          listenLocal: false
+          livenessProbe:
+            enabled: true
+            failureThreshold: 120
+            initialDelaySeconds: 0
+            path: /-/healthy
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          logFormat: logfmt
+          logLevel: info
+          nodeAffinityPreset:
+            key: ''
+            type: ''
+            values: []
+          nodeSelector: {}
+          paused: false
+          pdb:
+            create: false
+            maxUnavailable: ''
+            minAvailable: 1
+          persistence:
+            accessModes:
+              - ReadWriteOnce
+            annotations: {}
+            enabled: false
+            size: 8Gi
+            storageClass: ''
+          podAffinityPreset: ''
+          podAntiAffinityPreset: soft
+          podMetadata:
+            annotations: {}
+            labels: {}
+          podSecurityContext:
+            enabled: true
+            fsGroup: 1001
+            runAsUser: 1001
+          portName: web
+          priorityClassName: ''
+          readinessProbe:
+            enabled: true
+            failureThreshold: 120
+            initialDelaySeconds: 0
+            path: /-/ready
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          replicaCount: 1
+          resources: {}
+          retention: 120h
+          routePrefix: /
+          secrets: []
+          service:
+            annotations: {}
+            clusterIP: ''
+            externalTrafficPolicy: Cluster
+            extraPorts: []
+            healthCheckNodePort: ''
+            loadBalancerIP: ''
+            loadBalancerSourceRanges: []
+            nodePorts:
+              http: ''
+            ports:
+              http: 9093
+            sessionAffinity: None
+            sessionAffinityConfig: {}
+            type: ClusterIP
+          serviceAccount:
+            annotations: {}
+            automountServiceAccountToken: true
+            create: true
+            name: ''
+          serviceMonitor:
+            annotations: {}
+            enabled: true
+            honorLabels: false
+            interval: ''
+            jobLabel: ''
+            labels: {}
+            metricRelabelings: []
+            relabelings: []
+            scrapeTimeout: ''
+            selector: {}
+          storageSpec: {}
+          templateFiles: {}
+          tolerations: []
+          volumeMounts: []
+          volumes: []
+        blackboxExporter:
+          affinity: {}
+          args: []
+          command: []
+          configuration: |
+            "modules":
+              "http_2xx":
+                "http":
+                  "preferred_ip_protocol": "ip4"
+                "prober": "http"
+              "http_post_2xx":
+                "http":
+                  "method": "POST"
+                  "preferred_ip_protocol": "ip4"
+                "prober": "http"
+              "irc_banner":
+                "prober": "tcp"
+                "tcp":
+                  "preferred_ip_protocol": "ip4"
+                  "query_response":
+                  - "send": "NICK prober"
+                  - "send": "USER prober prober prober :prober"
+                  - "expect": "PING :([^ ]+)"
+                    "send": "PONG ${1}"
+                  - "expect": "^:[^ ]+ 001"
+              "pop3s_banner":
+                "prober": "tcp"
+                "tcp":
+                  "preferred_ip_protocol": "ip4"
+                  "query_response":
+                  - "expect": "^+OK"
+                  "tls": true
+                  "tls_config":
+                    "insecure_skip_verify": false
+              "ssh_banner":
+                "prober": "tcp"
+                "tcp":
+                  "preferred_ip_protocol": "ip4"
+                  "query_response":
+                  - "expect": "^SSH-2.0-"
+              "tcp_connect":
+                "prober": "tcp"
+                "tcp":
+                  "preferred_ip_protocol": "ip4"
+          containerPorts:
+            http: 19115
+          containerSecurityContext:
+            enabled: true
+            runAsNonRoot: true
+            runAsUser: 1001
+          customLivenessProbe: {}
+          customReadinessProbe: {}
+          customStartupProbe: {}
+          enabled: true
+          existingConfigMap: ''
+          extraEnvVars: []
+          extraEnvVarsCM: ''
+          extraEnvVarsSecret: ''
+          extraVolumeMounts: []
+          extraVolumes: []
+          hostAliases: []
+          image:
+            pullPolicy: IfNotPresent
+            pullSecrets: []
+            registry: docker.io
+            repository: bitnami/blackbox-exporter
+            tag: 0.21.1-debian-11-r15
+          initContainers: []
+          lifecycleHooks: {}
+          livenessProbe:
+            enabled: true
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          nodeAffinityPreset:
+            key: ''
+            type: ''
+            values: []
+          nodeSelector: {}
+          podAffinityPreset: ''
+          podAnnotations: {}
+          podAntiAffinityPreset: soft
+          podLabels: {}
+          podSecurityContext:
+            enabled: true
+            fsGroup: 1001
+          priorityClassName: ''
+          readinessProbe:
+            enabled: true
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          replicaCount: 1
+          resources:
+            limits: {}
+            requests: {}
+          schedulerName: ''
+          service:
+            annotations: {}
+            clusterIP: ''
+            externalTrafficPolicy: Cluster
+            extraPorts: []
+            loadBalancerIP: ''
+            loadBalancerSourceRanges: []
+            nodePorts:
+              http: ''
+            ports:
+              http: 19115
+            sessionAffinity: None
+            sessionAffinityConfig: {}
+            type: ClusterIP
+          serviceAccount:
+            annotations: {}
+            automountServiceAccountToken: true
+            create: true
+            name: ''
+          sidecars: []
+          startupProbe:
+            enabled: false
+            failureThreshold: 15
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          terminationGracePeriodSeconds: ''
+          tolerations: []
+          topologySpreadConstraints: []
+          updateStrategy:
+            type: RollingUpdate
+        clusterDomain: cluster.local
+        commonAnnotations: {}
+        commonLabels: {}
+        coreDns:
+          enabled: true
+          namespace: kube-system
+          service:
+            enabled: true
+            ports:
+              http: 9153
+            selector: {}
+            targetPorts:
+              http: 9153
+          serviceMonitor:
+            interval: ''
+            metricRelabelings: []
+            relabelings: []
+        exporters:
+          kube-state-metrics:
+            enabled: true
+          node-exporter:
+            enabled: true
+        extraDeploy: []
+        fullnameOverride: ''
+        global:
+          imagePullSecrets: []
+          imageRegistry: ''
+          storageClass: ''
+        kube-state-metrics:
+          serviceMonitor:
+            enabled: true
+            honorLabels: true
+        kubeApiServer:
+          enabled: true
+          serviceMonitor:
+            interval: ''
+            metricRelabelings: []
+            relabelings: []
+        kubeControllerManager:
+          enabled: true
+          endpoints: []
+          namespace: kube-system
+          service:
+            enabled: true
+            ports:
+              http: 10252
+            selector: {}
+            targetPorts:
+              http: 10252
+          serviceMonitor:
+            https: false
+            insecureSkipVerify: ''
+            interval: ''
+            metricRelabelings: []
+            relabelings: []
+            serverName: ''
+        kubeProxy:
+          enabled: true
+          endpoints: []
+          namespace: kube-system
+          service:
+            enabled: true
+            ports:
+              http: 10249
+            selector: {}
+            targetPorts:
+              http: 10249
+          serviceMonitor:
+            annotations: {}
+            https: false
+            interval: ''
+            labels: {}
+            metricRelabelings: []
+            relabelings: []
+        kubeScheduler:
+          enabled: true
+          endpoints: []
+          namespace: kube-system
+          service:
+            enabled: true
+            ports:
+              http: 10251
+            selector: {}
+            targetPorts:
+              http: 10251
+          serviceMonitor:
+            annotations: {}
+            https: false
+            insecureSkipVerify: ''
+            interval: ''
+            labels: {}
+            metricRelabelings: []
+            relabelings: []
+            serverName: ''
+        kubeVersion: ''
+        kubelet:
+          enabled: true
+          namespace: kube-system
+          serviceMonitor:
+            annotations: {}
+            cAdvisorMetricRelabelings: []
+            cAdvisorRelabelings: []
+            https: true
+            interval: ''
+            labels: {}
+            metricRelabelings: []
+            relabelings: []
+        nameOverride: ''
+        namespaceOverride: ''
+        node-exporter:
+          extraArgs:
+            collector.filesystem.ignored-fs-types: >-
+              ^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
+            collector.filesystem.ignored-mount-points: ^/(dev|proc|sys|var/lib/docker/.+)($|/)
+          service:
+            labels:
+              jobLabel: node-exporter
+          serviceMonitor:
+            enabled: true
+            jobLabel: jobLabel
+        operator:
+          affinity: {}
+          args: []
+          command: []
+          configReloaderResources: {}
+          containerSecurityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            enabled: true
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+          customLivenessProbe: {}
+          customReadinessProbe: {}
+          customStartupProbe: {}
+          enabled: true
+          extraArgs: []
+          extraEnvVars: []
+          extraEnvVarsCM: ''
+          extraEnvVarsSecret: ''
+          extraVolumeMounts: []
+          extraVolumes: []
+          hostAliases: []
+          image:
+            pullPolicy: IfNotPresent
+            pullSecrets: []
+            registry: docker.io
+            repository: bitnami/prometheus-operator
+            tag: 0.58.0-debian-11-r5
+          initContainers: []
+          kubeletService:
+            enabled: true
+            namespace: kube-system
+          lifecycleHooks: {}
+          livenessProbe:
+            enabled: true
+            failureThreshold: 6
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          logFormat: logfmt
+          logLevel: info
+          nodeAffinityPreset:
+            key: ''
+            type: ''
+            values: []
+          nodeSelector: {}
+          podAffinityPreset: ''
+          podAnnotations: {}
+          podAntiAffinityPreset: soft
+          podLabels: {}
+          podSecurityContext:
+            enabled: true
+            fsGroup: 1001
+            runAsUser: 1001
+          priorityClassName: ''
+          prometheusConfigReloader:
+            containerSecurityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              enabled: true
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+            image: {}
+            livenessProbe:
+              enabled: true
+              failureThreshold: 6
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 5
+            readinessProbe:
+              enabled: true
+              failureThreshold: 6
+              initialDelaySeconds: 15
+              periodSeconds: 20
+              successThreshold: 1
+              timeoutSeconds: 5
+          readinessProbe:
+            enabled: true
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources: {}
+          schedulerName: ''
+          service:
+            annotations: {}
+            clusterIP: ''
+            externalTrafficPolicy: Cluster
+            extraPorts: []
+            healthCheckNodePort: ''
+            loadBalancerIP: ''
+            loadBalancerSourceRanges: []
+            nodePorts:
+              http: ''
+            ports:
+              http: 8080
+            sessionAffinity: None
+            sessionAffinityConfig: {}
+            type: ClusterIP
+          serviceAccount:
+            annotations: {}
+            automountServiceAccountToken: true
+            create: true
+            name: ''
+          serviceMonitor:
+            annotations: {}
+            enabled: true
+            interval: ''
+            labels: {}
+            metricRelabelings: []
+            relabelings: []
+            scrapeTimeout: ''
+          sidecars: []
+          startupProbe:
+            enabled: false
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          terminationGracePeriodSeconds: ''
+          tolerations: []
+          topologySpreadConstraints: []
+        prometheus:
+          additionalAlertRelabelConfigsExternal:
+            enabled: false
+            key: ''
+            name: ''
+          additionalPrometheusRules: []
+          additionalScrapeConfigs:
+            enabled: false
+            external:
+              key: ''
+              name: ''
+            internal:
+              jobList: []
+            type: external
+          additionalScrapeConfigsExternal:
+            enabled: false
+            key: ''
+            name: ''
+          affinity: {}
+          alertingEndpoints: []
+          configMaps: []
+          containerSecurityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            enabled: true
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+          containers: []
+          disableCompaction: false
+          enableAdminAPI: false
+          enableFeatures: []
+          enabled: true
+          evaluationInterval: ''
+          externalLabels: {}
+          externalUrl: ''
+          image:
+            pullSecrets: []
+            registry: docker.io
+            repository: bitnami/prometheus
+            tag: 2.37.0-debian-11-r7
+          ingress:
+            annotations: {}
+            apiVersion: ''
+            enabled: false
+            extraHosts: []
+            extraPaths: []
+            extraRules: []
+            extraTls: []
+            hostname: prometheus.local
+            ingressClassName: ''
+            path: /
+            pathType: ImplementationSpecific
+            secrets: []
+            selfSigned: false
+            tls: false
+          initContainers: []
+          listenLocal: false
+          livenessProbe:
+            enabled: true
+            failureThreshold: 10
+            initialDelaySeconds: 0
+            path: /-/healthy
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          logFormat: logfmt
+          logLevel: info
+          nodeAffinityPreset:
+            key: ''
+            type: ''
+            values: []
+          nodeSelector: {}
+          paused: false
+          pdb:
+            create: false
+            maxUnavailable: ''
+            minAvailable: 1
+          persistence:
+            accessModes:
+              - ReadWriteOnce
+            annotations: {}
+            enabled: false
+            size: 8Gi
+            storageClass: ''
+          podAffinityPreset: ''
+          podAntiAffinityPreset: soft
+          podMetadata:
+            annotations: {}
+            labels: {}
+          podMonitorNamespaceSelector: {}
+          podMonitorSelector: {}
+          podSecurityContext:
+            enabled: true
+            fsGroup: 1001
+            runAsUser: 1001
+          portName: web
+          priorityClassName: ''
+          probeNamespaceSelector: {}
+          probeSelector: {}
+          prometheusExternalLabelName: ''
+          prometheusExternalLabelNameClear: false
+          querySpec: {}
+          readinessProbe:
+            enabled: true
+            failureThreshold: 10
+            initialDelaySeconds: 0
+            path: /-/ready
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          remoteRead: []
+          remoteWrite: []
+          replicaCount: 1
+          replicaExternalLabelName: ''
+          replicaExternalLabelNameClear: false
+          resources: {}
+          retention: 10d
+          retentionSize: ''
+          routePrefix: /
+          ruleNamespaceSelector: {}
+          ruleSelector: {}
+          scrapeInterval: ''
+          secrets: []
+          service:
+            annotations: {}
+            clusterIP: ''
+            externalTrafficPolicy: Cluster
+            healthCheckNodePort: ''
+            loadBalancerIP: ''
+            loadBalancerSourceRanges: []
+            nodePorts:
+              http: ''
+            ports:
+              http: 9090
+            sessionAffinity: None
+            sessionAffinityConfig: {}
+            type: ClusterIP
+          serviceAccount:
+            annotations: {}
+            automountServiceAccountToken: true
+            create: true
+            name: ''
+          serviceMonitor:
+            enabled: true
+            interval: ''
+            metricRelabelings: []
+            relabelings: []
+          serviceMonitorNamespaceSelector: {}
+          serviceMonitorSelector: {}
+          shards: 1
+          startupProbe:
+            enabled: true
+            failureThreshold: 60
+            initialDelaySeconds: 0
+            path: /-/ready
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 3
+          storageSpec: {}
+          thanos:
+            containerSecurityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              enabled: true
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+            create: false
+            extraArgs: []
+            extraVolumeMounts: []
+            image:
+              pullPolicy: IfNotPresent
+              pullSecrets: []
+              registry: docker.io
+              repository: bitnami/thanos
+              tag: 0.27.0-scratch-r5
+            ingress:
+              annotations: {}
+              apiVersion: ''
+              enabled: false
+              extraHosts: []
+              extraPaths: []
+              extraRules: []
+              extraTls: []
+              hostname: thanos.prometheus.local
+              ingressClassName: ''
+              path: /
+              pathType: ImplementationSpecific
+              secrets: []
+              selfSigned: false
+              tls: false
+            livenessProbe:
+              enabled: true
+              failureThreshold: 120
+              initialDelaySeconds: 0
+              path: /-/healthy
+              periodSeconds: 5
+              successThreshold: 1
+              timeoutSeconds: 3
+            objectStorageConfig: {}
+            prometheusUrl: ''
+            readinessProbe:
+              enabled: true
+              failureThreshold: 120
+              initialDelaySeconds: 0
+              path: /-/ready
+              periodSeconds: 5
+              successThreshold: 1
+              timeoutSeconds: 3
+            resources:
+              limits: {}
+              requests: {}
+            service:
+              annotations: {}
+              clusterIP: None
+              externalTrafficPolicy: Cluster
+              extraPorts: []
+              loadBalancerIP: ''
+              loadBalancerSourceRanges: []
+              nodePorts:
+                grpc: ''
+              ports:
+                grpc: 10901
+              sessionAffinity: None
+              sessionAffinityConfig: {}
+              type: ClusterIP
+          tolerations: []
+          volumeMounts: []
+          volumes: []
+          walCompression: false
+        rbac:
+          create: true
+          pspEnabled: true
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
