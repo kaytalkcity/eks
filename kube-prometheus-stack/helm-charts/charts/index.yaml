@@ -3,7 +3,7 @@ entries:
   grafana:
   - apiVersion: v2
     appVersion: 9.1.5
-    created: "2022-09-16T16:36:00.2205031-05:00"
+    created: "2022-09-16T16:44:42.774715-05:00"
     description: The leading tool for querying and visualizing time series and metrics.
     digest: 8c6f4bf2f4b88ba8399b74a4c044f25c51c08ad7fac6341629649c05ccdd7b52
     home: https://grafana.net
@@ -27,4 +27,53 @@ entries:
     urls:
     - grafana-6.38.3.tgz
     version: 6.38.3
-generated: "2022-09-16T16:36:00.2185056-05:00"
+  kube-state-metrics:
+  - apiVersion: v2
+    appVersion: 2.6.0
+    created: "2022-09-16T16:44:42.7756331-05:00"
+    description: Install kube-state-metrics to generate and expose cluster-level metrics
+    digest: 7c122bbb65f8ffa29aabb2c3495b453cc31400ecbd33d2915f3503779938eda8
+    home: https://github.com/kubernetes/kube-state-metrics/
+    keywords:
+    - metric
+    - monitoring
+    - prometheus
+    - kubernetes
+    maintainers:
+    - email: tariq.ibrahim@mulesoft.com
+      name: tariq1890
+    - email: manuel@rueg.eu
+      name: mrueg
+    - email: davidcalvertfr@gmail.com
+      name: dotdc
+    name: kube-state-metrics
+    sources:
+    - https://github.com/kubernetes/kube-state-metrics/
+    type: application
+    urls:
+    - kube-state-metrics-4.18.0.tgz
+    version: 4.18.0
+  prometheus-node-exporter:
+  - apiVersion: v2
+    appVersion: 1.3.1
+    created: "2022-09-16T16:44:42.7762402-05:00"
+    description: A Helm chart for prometheus node-exporter
+    digest: 7bf5fd27aa27f32ea7b24ee065cbf3ec14bb2b471cf86d22f8c14bc2ed5dcfa4
+    home: https://github.com/prometheus/node_exporter/
+    keywords:
+    - node-exporter
+    - prometheus
+    - exporter
+    maintainers:
+    - email: gianrubio@gmail.com
+      name: gianrubio
+    - email: zanhsieh@gmail.com
+      name: zanhsieh
+    name: prometheus-node-exporter
+    sources:
+    - https://github.com/prometheus/node_exporter/
+    type: application
+    urls:
+    - prometheus-node-exporter-4.3.0.tgz
+    version: 4.3.0
+generated: "2022-09-16T16:44:42.7721339-05:00"
